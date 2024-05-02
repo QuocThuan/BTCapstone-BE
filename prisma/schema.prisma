@@ -26,6 +26,7 @@ model hinh_anh {
   duong_dan     String?     @db.VarChar(300)
   mo_ta         String?     @db.VarChar(250)
   nguoi_dung_id Int?
+  da_xoa        Int?
   binh_luan     binh_luan[]
   nguoi_dung    nguoi_dung? @relation(fields: [nguoi_dung_id], references: [nguoi_dung_id], onDelete: NoAction, onUpdate: NoAction, map: "hinh_anh_ibfk_1")
   luu_anh       luu_anh[]

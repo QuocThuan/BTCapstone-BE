@@ -115,7 +115,11 @@ const getImageById = async (req, res) => {
             nguoi_dung_id,
         },
         include: {
-            hinh_anh: true
+            hinh_anh: {
+                where: {
+                    da_xoa: 0
+                }
+            }
         }
     })
 
@@ -167,4 +171,68 @@ const postImage = async (req, res) => {
     }
 }
 
-export { signUp, login, getUser, getImageById, getSaveById, postImage }
+const deleteImage = async (req, res) => {
+    try {
+        let { id } = req.params;
+
+        let { authorization } = req.headers;
+        const token = authorization.slice(7)
+
+        let { nguoi_dung_id } = decodeToken(token)
+
+        let checkUser = await prisma.hinh_anh.findFirst({
+            where: {
+                hinh_id: Number(id)
+            }
+        })
+
+        if (checkUser) {
+            if (checkUser.nguoi_dung_id === nguoi_dung_id) {
+
+                await prisma.hinh_anh.update({
+                    where: {
+                        hinh_id: Number(id)
+                    },
+                    data: {
+                        da_xoa: 1
+                    }
+                })
+
+                responseData(res, 'Xóa ảnh thành công', 200, '')
+            }
+            return
+        }
+
+        responseData(res, 'Bạn không có quyền xóa ảnh', 400, '')
+
+    } catch (err) {
+        console.log(err)
+        responseData(res, 'Lỗi hệ thống', 500, '')
+    }
+}
+
+const updateUser = async (req, res) => {
+    try {
+        let { anh_dai_dien, ho_ten } = req.body;
+
+        let { authorization } = req.headers;
+        const token = authorization.slice(7)
+
+        let { nguoi_dung_id } = decodeToken(token)
+
+        let update = {
+            anh_dai_dien,
+            ho_ten,
+        }
+
+        await prisma.nguoi_dung.update({ where: { nguoi_dung_id: Number(nguoi_dung_id) }, data: update })
+
+        responseData(res, 'Update thông tin thành công', 200, '')
+
+    } catch (err) {
+        console.log(err)
+        responseData(res, 'Lỗi hệ thống', 500, '')
+    }
+}
+
+export { signUp, login, getUser, getImageById, getSaveById, postImage, deleteImage, updateUser }

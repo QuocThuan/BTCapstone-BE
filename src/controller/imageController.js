@@ -6,7 +6,11 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient
 
 const getImage = async (req, res) => {
-    let data = await prisma.hinh_anh.findMany()
+    let data = await prisma.hinh_anh.findMany({
+        where: {
+            da_xoa: 0
+        }
+    })
     responseData(res, 'Lấy hình ảnh thành công', 200, data)
 }
 
@@ -16,7 +20,8 @@ const getImageByName = async (req, res) => {
         where: {
             ten_hinh: {
                 contains: name
-            }
+            },
+            da_xoa: 0
         }
     })
 
@@ -27,7 +32,7 @@ const getImageById = async (req, res) => {
     let { id } = req.params;
     let data = await prisma.hinh_anh.findMany({
         where: {
-            hinh_id: Number(id)
+            hinh_id: Number(id),
         },
         include: {
             nguoi_dung: true
